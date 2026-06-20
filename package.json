@@ -1,0 +1,71 @@
+{
+  "name": "stadfangaskra",
+  "version": "0.1.0",
+  "description": "Icelandic address registry (Staðfangaskrá) lookup for TypeScript, Cloudflare Workers and Node — a zero-dependency, edge-native port of the data layer of Sveinbjörn Þórðarson's iceaddr.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Guðröður Atli Jónsson <gudrodur@gmail.com>",
+  "keywords": [
+    "iceland",
+    "icelandic",
+    "address",
+    "stadfangaskra",
+    "postcode",
+    "postnumer",
+    "geocoding",
+    "iceaddr",
+    "cloudflare-workers",
+    "edge"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gudrodur/stadfangaskra.git"
+  },
+  "homepage": "https://github.com/gudrodur/stadfangaskra#readme",
+  "bugs": {
+    "url": "https://github.com/gudrodur/stadfangaskra/issues"
+  },
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./postcodes": {
+      "types": "./dist/postcodes.d.ts",
+      "import": "./dist/postcodes.js",
+      "require": "./dist/postcodes.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "NOTICE.md"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "typecheck": "tsc --noEmit",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "format": "oxfmt --write src tests",
+    "format:check": "oxfmt --check src tests",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "check": "pnpm run lint && pnpm run typecheck && pnpm run test",
+    "prepublishOnly": "pnpm run build"
+  },
+  "packageManager": "pnpm@10.0.0",
+  "devDependencies": {
+    "oxfmt": "^0.55.0",
+    "oxlint": "^1.70.0",
+    "tsdown": "^0.22.3",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.9"
+  }
+}
