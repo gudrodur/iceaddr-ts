@@ -31,41 +31,46 @@ lagaðu að þér og sendu sjálf(ur).
 
 ## Lengri útgáfa (tölvupóstur)
 
-> Efni: TypeScript-port af gagnalagi iceaddr, vildi heyra í þér fyrst
+Yfirfarinn af Gemini (íslenska) 2026-06-20 — þetta er útgáfan sem er í Gmail-drögunum.
+
+> Efni: TypeScript-yfirfærsla á iceaddr-gagnalaginu og fyrirspurn
 >
 > Sæll Sveinbjörn,
 >
-> Ég heiti Guðröður Atli Jónsson. Ég hef lengi notað iceaddr og vil byrja á að
-> þakka fyrir það, það er búið að spara mörgum okkar ómælda vinnu.
+> Ég heiti Guðröður Atli Jónsson. Ég hef lengi notað iceaddr og vil byrja á því
+> að þakka kærlega fyrir það, enda hefur verkið sparað mörgum okkar ómælda vinnu.
 >
-> Tilefnið: við erum að endurbyggja félagakerfi Sósíalistaflokksins á Cloudflare
-> Workers (TypeScript, V8 isolates). Þar er enginn Python og ekkert SQLite, svo
-> iceaddr var ekki nothæft beint. Ég endurútfærði því gagnalagið í hreinu
-> TypeScript:
+> Tilefnið er það að við erum að endurbyggja félagakerfi Sósíalistaflokksins á
+> Cloudflare Workers (TypeScript, V8 isolates). Þar er hvorki Python né SQLite að
+> finna, svo iceaddr var ekki beint nothæft í sinni upprunalegu mynd. Ég
+> endurútfærði því gagnalagið í hreinu TypeScript:
 >
-> - sækir Staðfangaskrá beint frá opinbera HMS-endapunktinum á keyrslutíma (engin
->   heimilisfangagögn fylgja pakkanum),
-> - hreinsar raðir með sömu reglum og iceaddr (Íslands-hnit, þekkt póstnúmer,
->   komma í punkt o.s.frv.),
-> - býður leit (með húsnúmera-prefix), validation og uppflettingu eftir hnitnum,
->   allt í minni, án gagnagrunns.
+> - Það sækir Staðfangaskrá beint frá opinberum endapunkti HMS á keyrslutíma
+>   (engin heimilisfangagögn fylgja pakkanum).
+> - Það hreinsar raðir með sömu reglum og iceaddr (Íslands-hnit, þekkt póstnúmer,
+>   skiptir kommu út fyrir punkt o.s.frv.).
+> - Það býður upp á leit (með forskeyti húsnúmera), staðfestingu og uppflettingu
+>   eftir hnitnum, allt í vinnsluminni án gagnagrunns.
 >
-> Eina gagnasettið sem fylgir er póstnúmeratafla sem ég portaði beint úr iceaddr
-> (postcodes.py). Hún er BSD-3, og ég held copyright-tilkynningunni þinni inni og
-> kredit-a iceaddr áberandi í README og NOTICE.
+> Eina gagnasettið sem fylgir með er póstnúmeratafla sem ég færði beint úr iceaddr
+> (postcodes.py). Hún er undir BSD-3 leyfinu og ég held höfundarréttartilkynningunni
+> þinni inni, auk þess sem ég get iceaddr rækilega í README- og NOTICE-skjölunum.
 >
-> Mig langar að gefa þetta út opinberlega undir MIT, til að skila einhverju til
-> baka til samfélagsins. Áður en það fer á npm langaði mig að heyra í þér fyrst,
-> af virðingu við upprunalega verkið:
+> Pakkinn er hér (ekki enn kominn á npm): https://github.com/gudrodur/stadfangaskra
+>
+> Mig langar að gefa þetta út opinberlega undir MIT-leyfi til að skila einhverju
+> til baka til samfélagsins. Áður en það fer á npm langaði mig að heyra í þér, af
+> virðingu við upprunalega verkið:
 >
 > 1. Ertu sáttur við að ég gefi þetta út?
-> 2. Einhverjar óskir varðandi nafn eða hvernig ég kredit-a þig? (Ég stefni á
->    hlutlausa nafnið „stadfangaskra" frekar en „iceaddr-ts", einmitt til að
->    eigna mér ekki nafnið þitt.)
-> 3. Ef þér líst vel á, mætti gjarnan tengja á það úr iceaddr, eða ég gæti haft
->    það sem „TS port" tilvísun, eins og þú vilt.
+> 2. Hefurðu einhverjar óskir varðandi nafn eða hvernig ég vísa í þig? Ég stefni á
+>    hlutlausa nafnið „stadfangaskra" frekar en „iceaddr-ts", einmitt til að eigna
+>    mér ekki þitt nafn.
+> 3. Ef þér líst vel á, mætti gjarnan tengja í pakkann úr iceaddr, eða ég gæti haft
+>    tilvísun í hann sem TypeScript-yfirfærslu, allt eftir því hvað þér hentar.
 >
-> Jökull Sólberg (sem er með opið PR hjá þér) þekkir þetta og benti mér á tsdown.
+> Ég set Jökul Sólberg (sem er með opna breytingartillögu hjá þér) í afrit, en
+> hann þekkir til og benti mér á tsdown.
 >
 > Kær kveðja og takk aftur fyrir iceaddr,
 > Guðröður
