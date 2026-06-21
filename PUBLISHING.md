@@ -14,7 +14,9 @@ publish when you give the word.
    ```
    If taken, fall back to a scoped name (`@gudrodur/iceaddr-ts`) and update
    `name` in `package.json`.
-2. Log in: `npm login`.
+2. Authenticate. `npm login` writes the token to `~/.npmrc`, which pnpm reads;
+   or set a granular publish token non-interactively:
+   `npm config set //registry.npmjs.org/:_authToken <TOKEN>`.
 3. Verify the build + tests are green:
    ```sh
    pnpm run build && pnpm run check
@@ -22,11 +24,11 @@ publish when you give the word.
 4. Dry-run to inspect the tarball contents (should be `dist/` + `NOTICE.md` +
    `README.md` + `LICENSE` only):
    ```sh
-   npm publish --dry-run
+   pnpm publish --dry-run
    ```
 5. Publish:
    ```sh
-   npm publish --access public
+   pnpm publish --access public
    ```
 6. Tag the release:
    ```sh
