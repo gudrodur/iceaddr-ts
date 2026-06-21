@@ -134,8 +134,8 @@ production deployment loads the cleaned records into Postgres and serves
 autocomplete via a `pg_trgm` trigram index with a weekly refresh job — the
 scalable shape for high traffic. That design (schema, indexes, the atomic-swap
 refresh, the `DISTINCT ON (hnitnum)` dedup needed because the upstream CSV is not
-unique on `hnitnum`) is written up in the companion design note and is meant to
-be copied and adapted, not consumed as a library.
+unique on `hnitnum`) is written up in the [companion design note](docs/design.md)
+and is meant to be copied and adapted, not consumed as a library.
 
 ## Development
 
