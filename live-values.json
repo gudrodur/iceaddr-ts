@@ -1,0 +1,7 @@
+{
+  "csv-header-columns": {
+    "run": "awk '/^export const EXPECTED_HEADER/{f=1;next} f&&/^\\] as const;/{exit} f&&/^  \"/{n++} END{print n}' src/core.ts",
+    "kind": "file",
+    "format": "int"
+  }
+}

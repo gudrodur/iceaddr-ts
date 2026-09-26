@@ -46,7 +46,7 @@ that matter for address lookup:
 fetch this CSV live, so the CC-BY redistribution obligation falls on the consumer,
 not on the package.
 
-The CSV header is **29 columns**; `iceaddr` keeps **13** (marked `*`), and so do we:
+The CSV header is **<!-- live:csv-header-columns -->29<!-- /live --> columns**; `iceaddr` keeps **13** (marked `*`), and so do we:
 
 ```
 FID, HNITNUM*, SVFNR*, BYGGD*, LANDNR*, HEINUM*, MATSNR, POSTNR*,
@@ -127,7 +127,7 @@ A weekly cron (most weeks a no-op):
 1. **Conditional `HEAD`** on the CSV URL; if `ETag` / `Last-Modified` match the stored
    meta row, exit early — no download, no writes.
 2. On change, **`GET` and stream** the CSV (do not buffer the whole body).
-3. **Validate the header** (29 columns, exact names); abort + alert on drift.
+3. **Validate the header** (<!-- live:csv-header-columns -->29<!-- /live --> columns, exact names); abort + alert on drift.
 4. Stream rows through `cleanAddressRow` into a **staging table** (batched inserts).
 5. **Row-count sanity check** — abort if the count moved more than ~5% vs the last
    refresh (catches upstream truncation / partial downloads).
