@@ -1,0 +1,44 @@
+# live-values: a number between live markers must equal what its registry
+# query prints (LV, gudrodur/agent-config). Copied byte-identical into each
+# adopting repo from agent-config templates/live-values/; convention-audit
+# checks the copy. The engine beside it, scripts/live-values.mjs, is the
+# generated bundle from the same template directory.
+#
+# Exit 1 is drift or a marker error; exit 3 is a query that could not run
+# here, and fails too: a value nobody could check is not a clean one. The fix
+# is `node scripts/live-values.mjs --write`, which the lefthook pre-commit
+# entry runs on a machine with lefthook installed.
+#
+# Runner from GUARD_RUNNER_LABELS, like the other copied guards: the file
+# stays identical everywhere and each repo picks its lane with a variable.
+# The default is hosted ubuntu-slim. A repo whose org cannot get hosted
+# runners (sosialistaflokkurinn: the billing block) sets the variable to its
+# self-hosted lane, e.g. ["self-hosted","gcp-ci"] in xj-greenfield.
+# Where the plan allows, make the `live-values` check required; on a private
+# repo in a free org it stays advisory (GitHub refuses rulesets there).
+name: live-values
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  live-values:
+    runs-on: ${{ fromJSON(vars.GUARD_RUNNER_LABELS || '["ubuntu-slim"]') }}
+    steps:
+      - uses: actions/checkout@v5
+      # No package-manager cache: the engine needs no dependencies, and
+      # setup-node v5 turns the cache on by itself when package.json names a
+      # packageManager, then fails the job in its post step because no store
+      # path exists (xj-greenfield#1574, 2026-09-26: the check passed, the job
+      # failed).
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Live values match their sources
+        run: node scripts/live-values.mjs --check
