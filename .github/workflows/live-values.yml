@@ -1,21 +1,20 @@
 # live-values: a number between live markers must equal what its registry
-# query prints (LV, gudrodur/agent-config). Copied byte-identical into each
-# adopting repo from agent-config templates/live-values/; convention-audit
-# checks the copy. The engine beside it, scripts/live-values.mjs, is the
-# generated bundle from the same template directory.
+# query prints. Copied byte-identical into each adopting repo from the
+# live-values release (dist/live-values.mjs beside this file's source, and
+# this workflow); a copy-identity check keeps the copies identical. The engine
+# beside it, scripts/live-values.mjs, is the generated bundle.
 #
 # Exit 1 is drift or a marker error; exit 3 is a query that could not run
 # here, and fails too: a value nobody could check is not a clean one. The fix
-# is `node scripts/live-values.mjs --write`, which the lefthook pre-commit
-# entry runs on a machine with lefthook installed.
+# is `node scripts/live-values.mjs --write`, which the pre-commit hook runs
+# on a machine with a hook runner installed.
 #
-# Runner from GUARD_RUNNER_LABELS, like the other copied guards: the file
-# stays identical everywhere and each repo picks its lane with a variable.
-# The default is hosted ubuntu-slim. A repo whose org cannot get hosted
-# runners (sosialistaflokkurinn: the billing block) sets the variable to its
-# self-hosted lane, e.g. ["self-hosted","gcp-ci"] in xj-greenfield.
-# Where the plan allows, make the `live-values` check required; on a private
-# repo in a free org it stays advisory (GitHub refuses rulesets there).
+# The runner comes from the GUARD_RUNNER_LABELS repository variable, so the
+# file stays identical everywhere while each repo picks its lane. Unset, it is
+# the hosted ubuntu-slim runner. A repo that cannot use hosted runners (for
+# example an org with a billing block) sets the variable to its self-hosted
+# labels, e.g. ["self-hosted","ci"]. Never point a public repo at a
+# self-hosted runner: any fork's pull request would run code on it.
 name: live-values
 
 on:
@@ -30,13 +29,11 @@ jobs:
   live-values:
     runs-on: ${{ fromJSON(vars.GUARD_RUNNER_LABELS || '["ubuntu-slim"]') }}
     steps:
-      - uses: actions/checkout@v5
-      # No package-manager cache: the engine needs no dependencies, and
-      # setup-node v5 turns the cache on by itself when package.json names a
-      # packageManager, then fails the job in its post step because no store
-      # path exists (xj-greenfield#1574, 2026-09-26: the check passed, the job
-      # failed).
-      - uses: actions/setup-node@v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # No package-manager cache: the engine needs no dependencies, and a
+      # cached setup step can fail the job in its post step when no store
+      # path exists. The engine is dependency-free, so nothing is cached.
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: '24'
           package-manager-cache: false
