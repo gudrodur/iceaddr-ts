@@ -1,16 +1,15 @@
 #!/usr/bin/env node
-// GENERATED from agent-config scripts/live-values.mjs by scripts/build-live-values-dist.mjs.
-// Do not edit: change the source in agent-config, rebuild, and copy this file again.
-// Every adopting repo carries it byte-identical at scripts/live-values.mjs; convention-audit
-// checks that. Usage and the marker grammar: node scripts/live-values.mjs --help.
+// GENERATED from https://github.com/gudrodur/live-values (engine/, by build.mjs).
+// Do not edit this copy: change the source there, rebuild with `node build.mjs`, and copy dist/ again.
+// Every adopting repo carries it byte-identical at scripts/live-values.mjs;
+// a copy-identity check keeps it so. Usage and the marker grammar: node scripts/live-values.mjs --help.
 
-// scripts/live-values.mjs
+// engine/live-values.mjs
 import { execFileSync as execFileSync2 } from "node:child_process";
 import { existsSync as existsSync2, mkdirSync, readFileSync, renameSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join as join2, relative as relative2 } from "node:path";
-import { fileURLToPath as fileURLToPath2 } from "node:url";
 
-// scripts/lib/cli-entry.mjs
+// engine/lib/cli-entry.mjs
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
 function isMainModule(metaUrl, argv1 = process.argv[1]) {
@@ -27,34 +26,27 @@ function isMainModule(metaUrl, argv1 = process.argv[1]) {
   return self === invoked;
 }
 
-// scripts/lib/config-root.mjs
-import fs2 from "node:fs";
-import os from "node:os";
+// engine/lib/config-root.mjs
 import path from "node:path";
-var OLD_CONFIG_DIRNAME = ".claude";
-var NEW_CONFIG_DIRNAME = "agent-config";
-var CONFIG_HOME_ENV = "AGENT_CONFIG_HOME";
-var configHome = (home = process.env.HOME ?? os.homedir()) => {
-  if (!home)
-    return OLD_CONFIG_DIRNAME;
-  const explicit = process.env[CONFIG_HOME_ENV];
-  if (explicit != null && explicit !== "")
-    return explicit;
-  const next = path.join(home, NEW_CONFIG_DIRNAME);
-  try {
-    if (fs2.statSync(next).isDirectory())
-      return next;
-  } catch {}
-  return path.join(home, OLD_CONFIG_DIRNAME);
+import { fileURLToPath as fileURLToPath2 } from "node:url";
+var ROOT_ENV_VARS = ["LIVE_VALUES_ROOT", "CLAUDE_CONFIG_ROOT", "AGENT_CONFIG_HOME"];
+var envRoot = () => {
+  for (const key of ROOT_ENV_VARS) {
+    const v = process.env[key];
+    if (v != null && v !== "")
+      return v;
+  }
+  return null;
 };
-var configPath = (...segs) => path.join(configHome(), ...segs);
+var repoRootOf = (metaUrl) => path.resolve(path.dirname(fileURLToPath2(metaUrl)), "..");
+var resolveRoot = (metaUrl) => envRoot() ?? repoRootOf(metaUrl ?? import.meta.url);
 
-// scripts/lib/doc-scope.mjs
+// engine/lib/doc-scope.mjs
 import { execFileSync } from "node:child_process";
 import { existsSync, lstatSync, readdirSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 
-// scripts/lib/shell-command.mjs
+// engine/lib/shell-command.mjs
 var stripQuoted = (text) => String(text ?? "").replace(/(?<=[=\s([{;&|<>$`'"]|^)'(?:[^'\\]|\\.)*'|(?<=[=\s([{;&|<>$`'"]|^)"(?:[^"\\]|\\.)*"/gs, " ");
 var QUOTE_OPEN_PRECEDER = /[=\s([{;&|<>$`'"]/;
 var splitSegments = (command) => splitSegmentsDetailed(command).map((s) => s.text);
@@ -209,7 +201,7 @@ var commandWord = (words) => {
   return index < 0 ? "" : words[index].replace(/^[({]+/, "");
 };
 
-// scripts/lib/doc-scope.mjs
+// engine/lib/doc-scope.mjs
 var PROJECT_DOC_RE = /^(?:(?:CLAUDE|AGENTS|README)\.md|docs\/.+\.md|(?:\.claude\/)?skills\/[^/]+\/SKILL\.md)$/;
 var liveScope = (root) => {
   const base = collectFiles(root);
@@ -352,10 +344,11 @@ var runCommand = (run, { root, timeoutMs }) => {
   }
 };
 
-// scripts/live-values.mjs
+// engine/live-values.mjs
 var REGISTRY_FILE = "live-values.json";
 var STORE_ENV = "LIVE_VALUES_STORE";
-var storePath = () => process.env[STORE_ENV] || configPath("data", "live-snapshots.json");
+var rootOf = (metaUrl) => resolveRoot(metaUrl ?? import.meta.url);
+var storePath = (root) => process.env[STORE_ENV] || join2(root, "data", "live-snapshots.json");
 var SNAP_SPAN_RE = /^(.*) \(measured (\d{4}-\d{2}-\d{2})\)$/su;
 var dated = (value, iso) => `${value} (measured ${iso.slice(0, 10)})`;
 var DAY_MS = 86400000;
@@ -506,8 +499,8 @@ var resolveFileValues = (names, entries, { root, timeoutMs }) => {
   }
   return out;
 };
-var loadStore = () => {
-  const p = storePath();
+var loadStore = (root) => {
+  const p = storePath(root);
   if (!existsSync2(p))
     return { entries: null };
   try {
@@ -523,7 +516,7 @@ var judgeSnapshot = (r, e, store, now) => {
   if (valid) {
     const storeAge = (now - Date.parse(s.measuredAt)) / DAY_MS;
     if (storeAge > e.maxAgeDays) {
-      return { result: "STALE", code: 1, detail: `store value is ${storeAge.toFixed(1)} days old, maxAgeDays ${e.maxAgeDays}: live-snapshots.timer is behind (systemctl --user status live-snapshots.service)` };
+      return { result: "STALE", code: 1, detail: `store value is ${storeAge.toFixed(1)} days old, maxAgeDays ${e.maxAgeDays}: the scheduled --snapshot run is behind` };
     }
     const shown = render(s.value, e.format, m ? m[1] : r.value);
     if (shown.error)
@@ -542,7 +535,7 @@ var judgeSnapshot = (r, e, store, now) => {
   }
   const spanAge = (now - Date.parse(`${m[2]}T00:00:00Z`)) / DAY_MS;
   if (spanAge > e.maxAgeDays) {
-    return { result: "STALE", code: 1, detail: `measured ${m[2]}, ${Math.floor(spanAge)} days ago, maxAgeDays ${e.maxAgeDays}: run --write on a machine whose live-snapshots.timer is current, and commit` };
+    return { result: "STALE", code: 1, detail: `measured ${m[2]}, ${Math.floor(spanAge)} days ago, maxAgeDays ${e.maxAgeDays}: run --write where the snapshot store is current, and commit` };
   }
   return { result: "OK", expected: r.value };
 };
@@ -554,7 +547,7 @@ var runSnapshots = ({ root, timeoutMs = 60000, now = Date.now() }) => {
   if (reg.error)
     return { fatal: reg.error, code: 2 };
   const names = Object.entries(reg.entries).filter(([, e]) => e.kind === "snapshot").map(([n]) => n);
-  const file = storePath();
+  const file = storePath(root);
   let store = {};
   if (existsSync2(file)) {
     try {
@@ -620,7 +613,7 @@ var evaluate = ({ root, timeoutMs = 1e4, now = Date.now() }) => {
   const used = rows.filter((r) => r.name && !r.result && reg.entries[r.name]).map((r) => r.name);
   const fileNames = new Set(used.filter((n) => reg.entries[n].kind === "file"));
   const values = resolveFileValues(fileNames, reg.entries, { root, timeoutMs });
-  const store = used.some((n) => reg.entries[n].kind === "snapshot") ? loadStore() : { entries: null };
+  const store = used.some((n) => reg.entries[n].kind === "snapshot") ? loadStore(root) : { entries: null };
   for (const r of rows) {
     if (r.result)
       continue;
@@ -721,13 +714,13 @@ var storeHealth = ({ root, now = Date.now(), timerEnabled = userTimerEnabled }) 
   if (!names.length)
     return [];
   if (!timerEnabled()) {
-    return ["live-snapshots.timer is NOT enabled - snapshot values go stale and CI's --check fails on age. Re-enable: ~/.claude/scripts/install-user-timer.sh live-snapshots"];
+    return ["automatic snapshot refresh is NOT enabled - snapshot values go stale and --check fails on age. Schedule a daily run: live-values.mjs --snapshot (cron, a scheduler, or a user timer)"];
   }
-  const store = loadStore();
+  const store = loadStore(root);
   if (store.error)
-    return [`${store.error} - the next live-snapshots.service run rewrites it`];
+    return [`${store.error} - the next scheduled --snapshot run rewrites it`];
   if (!store.entries)
-    return [`no snapshot store at ${storePath()} - has live-snapshots.timer ever run? systemctl --user status live-snapshots.timer`];
+    return [`no snapshot store at ${storePath(root)} - run --snapshot where the store lives, then --write`];
   const behind = [];
   for (const [name, e] of names) {
     const s = store.entries[name];
@@ -740,7 +733,7 @@ var storeHealth = ({ root, now = Date.now(), timerEnabled = userTimerEnabled }) 
     if (age > e.maxAgeDays)
       behind.push(`${name}(${age}d>${e.maxAgeDays}d)`);
   }
-  return behind.length ? [`snapshot store has stale entries: ${behind.join(" ")} - the timer may be failing: systemctl --user status live-snapshots.service | tail -20`] : [];
+  return behind.length ? [`snapshot store has stale entries: ${behind.join(" ")} - the scheduled --snapshot run may be failing`] : [];
 };
 var USAGE = [
   "usage: node scripts/live-values.mjs (--check | --write | --hook | --list | --snapshot | --store-health) [--format=json]",
@@ -773,12 +766,12 @@ ${USAGE}`);
   }
   const mode = modes[0];
   const json = argv.includes("--format=json");
-  const root = process.env.CLAUDE_CONFIG_ROOT ?? fileURLToPath2(new URL("..", import.meta.url));
+  const root = rootOf(import.meta.url);
   const timeoutMs = Number(process.env.LIVE_VALUES_TIMEOUT_MS ?? 1e4);
   if (mode === "--store-health") {
     const problems = storeHealth({ root });
     if (json)
-      console.log(JSON.stringify({ root, mode: "store-health", store: storePath(), problems }, null, 2));
+      console.log(JSON.stringify({ root, mode: "store-health", store: storePath(root), problems }, null, 2));
     else
       for (const p of problems)
         console.log(`[live-values] ⚠ ${p}`);
@@ -873,6 +866,7 @@ export {
   scanFile,
   runSnapshots,
   runHook,
+  rootOf,
   evaluate,
   checkFileQuery,
   STORE_ENV,
