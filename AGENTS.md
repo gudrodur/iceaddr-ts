@@ -23,8 +23,9 @@ pnpm test
 ```
 
 CI (`.github/workflows/ci.yml`) runs install, lint, format check, typecheck, test and build;
-`live-values.yml` checks `scripts/live-values.mjs`. Not run here: dependency install was not
-part of this docs change; CI is the gate.
+`live-values.yml` checks `scripts/live-values.mjs`. Verified here:
+`node scripts/live-values.mjs --check` → "2 marker(s); 2 ok, 0 drift". Not run here:
+dependency install and the full suite were not part of this docs change; CI is the gate.
 
 ## Deploy and accounts
 
